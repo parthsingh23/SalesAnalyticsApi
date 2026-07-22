@@ -1,8 +1,26 @@
-from fastapi import FastAPI # Importing the FastAPI class from the fastapi library
+from fastapi import FastAPI
 
-app = FastAPI() # this creates FastAPI application, my backend server. Everything is attached to this "app" object
+app = FastAPI(
+    title="Sales Analytics API",
+    description="Backend API for Sales Analytics Dashboard",
+    version="1.0.0"
+)
 
-@app.get("/") # this is Decorator. This says if someone sends a GET to "/", exceute the func below
-
+@app.get("/")
 def root():
-    return {"return":"Welcome to Sales Analytics API"} # automatically converted into JSON
+    return{
+        "message":"Welcome to Sales Analytics API"
+    }
+
+@app.get("/about")
+def about():
+    return {
+        "project": "Sales Analytics API",
+        "developer": "Parth Singh"
+    }
+
+@app.get("/health")
+def health():
+    return {
+        "status":"healthy"
+    }
