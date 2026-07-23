@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from app.models import Product # Importing our base model
+from app.models import Product, UpdateProduct # Importing our base model
 from app.models import Item, UserIn, UserBase, UserOut
 
 app = FastAPI(
@@ -32,56 +32,73 @@ def health():
     return {"status": "healthy"}
 
 
-@app.get("/get-product/{product_id}")
-def get_product_details(product_id: int):
-    if product_id in products:
-        return products[product_id]
-    raise HTTPException(
-        status_code=404,
-        detail="Product Not found."
-    )
+@app.get("/products/", response_model=dict[int, Product])
+def get_products(name: str | None = None):
+    if name is None:
+        return products
 
-@app.get("/get-product-by-name/{name}")
-def get_product_by_name(name: str):
     for product in products.values():
-        if product["name"] == name:
+        if product["name"].lower() == name.lower():
             return product
+
     raise HTTPException(
         status_code=404,
-        detail="Product Not found."
+        detail="Product Not Found"
     )
 
-@app.get("/products-by-id-and-category/")
-def get_product(product_id: int, cat: str | None = None):
-    if product_id in products:
-        product = products[product_id]
-        if cat is None: 
-            return product['name']
-        else:
-            if product['category'] == cat:
-                return product['name']
-    raise HTTPException(
-        status_code=400,
-        detail="Invalid ID or category."
-    )    
+@app.get("/products/{product_id}", response_model=Product)
+def get_product(product_id: int):
+    if product_id not in products:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found"
+        )
+    return products[product_id]
 
-
-@app.post("/create-new-product/{product_id}", response_model=Product, status_code=201)
-def create_new_product(product_id: int, productDetail: Product):
+@app.post("/products/{product_id}", response_model=Product, status_code=201)
+def create_product(product_id: int, product: Product):
     if product_id in products:
-        # return {"Error": "Product already Exists"}
         raise HTTPException(
             status_code=409,
-            detail="Product already Exists."
+            detail="Product already exist"
         )
-    products[product_id] = productDetail.model_dump()
+    products[product_id] = product.model_dump()
     return products[product_id]
 
 
-@app.post("/items/", response_model = Item)
-def create_item(item: Item):
-    return item 
+# @app.post("/items/", response_model = Item)
+# def create_item(item: Item):
+#     return item 
 
-@app.post("/user/", response_model=UserOut)
-def add_user(user: UserIn):
-    return user
+# @app.post("/user/", response_model=UserOut)
+# def add_user(user: UserIn):
+#     return user
+
+# @app.get("/products", response_model = dict[int, Product], status_code=201)
+# def get_all_products():
+#     return products
+
+
+@app.put("/products/{product_id}", response_model= Product)
+def update_product(product_id: int, product: UpdateProduct):
+    if product_id not in products:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found"
+        )
+    products[product_id].update(
+        product.model_dump(exclude_unset=True)
+    )
+
+    return products[product_id]
+
+@app.delete("/products/{product_id}")
+def delete_product(product_id: int):
+    if product_id not in products:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found"
+        )
+    del products[product_id]
+
+    return {"Message":"Product deleted Sucesfully"}
