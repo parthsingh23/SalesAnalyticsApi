@@ -1,12 +1,22 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
+
 from app.models import Product, UpdateProduct # Importing our base model
 from app.models import Item, UserIn, UserBase, UserOut
+from app.database import create_db_and_tables
 
-app = FastAPI(
-    title="Sales Analytics API",
-    description="Backend API for Sales Analytics Dashboard",
-    version="1.0.0",
-)
+# app = FastAPI(
+#     title="Sales Analytics API",
+#     description="Backend API for Sales Analytics Dashboard",
+#     version="1.0.0",
+# )
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_db_and_tables()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 
 products = {

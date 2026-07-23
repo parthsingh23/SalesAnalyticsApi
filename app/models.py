@@ -1,10 +1,22 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr
+from sqlmodel import SQLModel, Field
 
-class Product(BaseModel):
-    name: str = Field(min_length=2, max_length=100, description="Product Name")
-    price: float = Field(gt=0, description="Product Price")
-    stock: int = Field(ge=0, description="Available Stock")
-    category: str = Field(min_length=2, max_length=50, description="Product Category")
+# class Product(BaseModel):
+#     name: str = Field(min_length=2, max_length=100, description="Product Name")
+#     price: float = Field(gt=0, description="Product Price")
+#     stock: int = Field(ge=0, description="Available Stock")
+#     category: str = Field(min_length=2, max_length=50, description="Product Category")
+
+
+# Now integrating DB in our app
+class Product(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str
+    price: float
+    stock: int
+    category: str
+
+    
 
 class UpdateProduct(BaseModel):
     name: str | None = Field(default=None, min_length=2, max_length=100)
