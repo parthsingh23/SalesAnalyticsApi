@@ -12,11 +12,11 @@ from app.database import create_db_and_tables
 # )
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def startup(app: FastAPI):
     create_db_and_tables()
     yield
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=startup)
 
 
 products = {

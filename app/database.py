@@ -16,4 +16,5 @@ def create_db_and_tables():
 
 def get_session():
     with Session(engine) as session:
-        yield session
+        yield session  
+        # Everything before yield is startup code and everything after is shutdown code. Yield pauses a function when it reaches there and then APIs are called, after application shutsdown , the function returns after yield
